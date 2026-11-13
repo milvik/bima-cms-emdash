@@ -4,25 +4,34 @@ import { DOCUMENTS } from "../lib/legal";
 import { HOME_MARKET, REGION } from "../lib/region";
 
 const urdu = REGION.locales.includes("ur");
+const markets = Object.keys(REGION.markets);
+const titled = markets.length > 1;
 ---
 
 <Legal title="Documents" lang="en" alternate={HOME_MARKET && urdu ? { href: `/ur/${HOME_MARKET}/about`, lang: "ur" } : undefined}>
 	<div class="hub">
 		<h1>{REGION.name}</h1>
-		<ul>
-			{HOME_MARKET && Object.entries(DOCUMENTS).map(([slug, d]) => (
-				<li>
-					<a href={`/${HOME_MARKET}/${slug}`}>{d.label.en}</a>
-					{urdu && <a href={`/ur/${HOME_MARKET}/${slug}`} lang="ur">{d.label.ur}</a>}
-				</li>
-			))}
-		</ul>
+		{markets.map((market) => (
+			<section>
+				{titled && <h2>{REGION.marketNames?.[market] ?? market.toUpperCase()}</h2>}
+				<ul>
+					{Object.entries(DOCUMENTS).map(([slug, d]) => (
+						<li>
+							<a href={`/${market}/${slug}`}>{d.label.en}</a>
+							{urdu && <a href={`/ur/${market}/${slug}`} lang="ur">{d.label.ur}</a>}
+						</li>
+					))}
+				</ul>
+			</section>
+		))}
 	</div>
 </Legal>
 
 <style>
 	.hub { max-width: 40rem; }
 	h1 { margin: 0 0 1.5rem; font: 700 clamp(2rem, 1.35rem + 2.8vw, 3.25rem) / 1.08 var(--display); text-transform: uppercase; color: var(--navy); }
+	section + section { margin-top: 2.5rem; }
+	h2 { margin: 0 0 0.75rem; font: 700 0.8125rem / 1.2 var(--reading); letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); }
 	ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
 	li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--rule); }
 	a { display: inline-flex; align-items: center; min-height: 3.25rem; text-decoration: none; color: var(--navy); font-weight: 600; }

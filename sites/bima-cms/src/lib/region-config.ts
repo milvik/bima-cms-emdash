@@ -18,6 +18,8 @@ export interface Region {
 	 * the app's config points at: never rename one.
 	 */
 	markets: Record<string, string>;
+	/** Country name per market, shown on the hub page when the region has more than one market. */
+	marketNames?: Record<string, string>;
 	/** Content locales, English first. Each one is a locale in the EmDash admin too. */
 	locales: Locale[];
 	/** Footer line naming who operates BIMA there, per locale. */
@@ -37,6 +39,7 @@ export const REGIONS: Record<string, Region> = {
 	af: {
 		name: "BIMA Africa",
 		markets: { gh: "GHANA_BTC", tz: "TANZANIA" },
+		marketNames: { gh: "Ghana", tz: "Tanzania" },
 		locales: ["en"],
 		operated: { en: "BIMA in Africa is operated by Milvik AB and its local partners." },
 	},
