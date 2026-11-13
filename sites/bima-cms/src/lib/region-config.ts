@@ -36,7 +36,7 @@ export const REGIONS: Record<string, Region> = {
 	},
 	af: {
 		name: "BIMA Africa",
-		markets: { gh: "GHANA_BTC" },
+		markets: { gh: "GHANA_BTC", tz: "TANZANIA" },
 		locales: ["en"],
 		operated: { en: "BIMA in Africa is operated by Milvik AB and its local partners." },
 	},
