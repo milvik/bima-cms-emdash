@@ -62,6 +62,27 @@
 			// once the plan is upgraded.
 			// "worker_loaders": [{ "binding": "LOADER" }],
 			"triggers": { "crons": ["* * * * *"] }
+		},
+		// Africa staging: region "af" in src/lib/region-config.ts. Its own D1 (created in WEUR,
+		// 13 Nov 2026), R2 and KV, so no content is shared with Pakistan. Build and deploy with
+		// CLOUDFLARE_ENV=af-staging, then check dist/server/wrangler.json names bima-af-cms-stg.
+		// Cloudflare Access must cover cdn-af-stg.milvik.app/_emdash/* before the first deploy:
+		// a fresh EmDash install lets the first visitor of /_emdash/admin become its owner.
+		"af-staging": {
+			"name": "bima-af-cms-stg",
+			"workers_dev": false,
+			"preview_urls": false,
+			"routes": [{ "pattern": "cdn-af-stg.milvik.app", "custom_domain": true }],
+			"d1_databases": [
+				{ "binding": "DB", "database_name": "bima-cms-af-stg", "database_id": "594b3489-4e03-4177-810d-2579418f9439" }
+			],
+			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "bima-cms-af-stg-media" }],
+			"vars": { "SITE_INDEXABLE": "false", "SMTP_HOST": "smtp.office365.com", "SMTP_PORT": "587" },
+			"kv_namespaces": [
+				{ "binding": "CACHE", "id": "801d8c31b06e4e38b9796f3a8869e523" },
+				{ "binding": "SESSION", "id": "20d05c9745dd4dc880e728ebcbfd61bd" }
+			],
+			"triggers": { "crons": ["* * * * *"] }
 		}
 	}
 }
