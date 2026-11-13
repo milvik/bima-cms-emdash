@@ -1,10 +1,11 @@
 import { env } from "cloudflare:workers";
 import { getEmDashCollection } from "emdash";
+import { REGION, type Locale } from "./region";
 
-/** URL segment -> the `country_partner` value documents are stored under. */
-export const MARKETS: Record<string, string> = {
-	pk: "PAKISTAN_SIMPAISA",
-};
+export type { Locale };
+
+/** URL segment -> the `country_partner` value documents are stored under, for this build's region. */
+export const MARKETS: Record<string, string> = REGION.markets;
 
 /** URL segment -> `document_type`. These URLs are what the app's config points at: never rename one. */
 export const DOCUMENTS: Record<string, { type: string; label: Record<Locale, string> }> = {
@@ -12,8 +13,6 @@ export const DOCUMENTS: Record<string, { type: string; label: Record<Locale, str
 	privacy: { type: "PRIVACY_POLICY", label: { en: "Privacy Policy", ur: "رازداری کی پالیسی" } },
 	about: { type: "ABOUT_US", label: { en: "About Us", ur: "ہمارے بارے میں" } },
 };
-
-export type Locale = "en" | "ur";
 
 export interface LegalPage {
 	entry: any;
@@ -41,7 +40,7 @@ async function latest(type: string, partner: string, locale: Locale) {
 export async function findLegalPage(market: string, doc: string, locale: Locale): Promise<LegalPage | null> {
 	const partner = MARKETS[market];
 	const spec = DOCUMENTS[doc];
-	if (!partner || !spec) return null;
+	if (!partner || !spec || !REGION.locales.includes(locale)) return null;
 	const first = await latest(spec.type, partner, locale);
 	if (first.entry) return { entry: first.entry, locale, fellBack: false, cacheHints: [first.cacheHint] };
 	if (locale === "en") return null;

@@ -1,4 +1,5 @@
 import handler, { createScheduledHandler, PluginBridge } from "@emdash-cms/cloudflare/worker";
+import { REGION } from "./lib/region";
 
 export { PluginBridge };
 
@@ -14,7 +15,10 @@ export { PluginBridge };
  * preview traffic never passes through here, and a signed-in editor (who carries a cookie)
  * always sees the live render.
  */
-const CACHEABLE = /^\/(?:ur\/)?pk\/[a-z-]+\/?$|^\/$/;
+const MARKET_SEGMENTS = Object.keys(REGION.markets).join("|");
+const CACHEABLE = MARKET_SEGMENTS
+	? new RegExp(`^\\/(?:ur\\/)?(?:${MARKET_SEGMENTS})\\/[a-z-]+\\/?$|^\\/$`)
+	: /^\/$/;
 const EDGE_TTL = 600; // seconds a page lives in Cloudflare's cache
 const BROWSER_TTL = 300; // seconds a browser or webview may reuse it without asking
 

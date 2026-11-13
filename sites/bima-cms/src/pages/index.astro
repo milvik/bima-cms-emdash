@@ -1,16 +1,19 @@
 ---
 import Legal from "../layouts/Legal.astro";
 import { DOCUMENTS } from "../lib/legal";
+import { HOME_MARKET, REGION } from "../lib/region";
+
+const urdu = REGION.locales.includes("ur");
 ---
 
-<Legal title="Documents" lang="en" alternate={{ href: "/ur/pk/about", lang: "ur" }}>
+<Legal title="Documents" lang="en" alternate={HOME_MARKET && urdu ? { href: `/ur/${HOME_MARKET}/about`, lang: "ur" } : undefined}>
 	<div class="hub">
-		<h1>BIMA Pakistan</h1>
+		<h1>{REGION.name}</h1>
 		<ul>
-			{Object.entries(DOCUMENTS).map(([slug, d]) => (
+			{HOME_MARKET && Object.entries(DOCUMENTS).map(([slug, d]) => (
 				<li>
-					<a href={`/pk/${slug}`}>{d.label.en}</a>
-					<a href={`/ur/pk/${slug}`} lang="ur">{d.label.ur}</a>
+					<a href={`/${HOME_MARKET}/${slug}`}>{d.label.en}</a>
+					{urdu && <a href={`/ur/${HOME_MARKET}/${slug}`} lang="ur">{d.label.ur}</a>}
 				</li>
 			))}
 		</ul>

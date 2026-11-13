@@ -5,14 +5,22 @@ import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
 import { fileURLToPath } from "node:url";
 import { graphEmail } from "./src/plugins/graph-email.ts";
+import { REGIONS, regionForEnv } from "./src/lib/region-config.ts";
+
+// CLOUDFLARE_ENV picks both the Worker (wrangler.jsonc) and the region this build serves.
+const regionId = regionForEnv(process.env.CLOUDFLARE_ENV);
+const { locales } = REGIONS[regionId];
 
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
 	i18n: {
 		defaultLocale: "en",
-		locales: ["en", "ur"],
-		fallback: { ur: "en" },
+		locales,
+		fallback: Object.fromEntries(locales.filter((l) => l !== "en").map((l) => [l, "en"])),
+	},
+	vite: {
+		define: { __BIMA_REGION__: JSON.stringify(regionId) },
 	},
 	image: {
 		layout: "constrained",
