@@ -122,7 +122,7 @@ export async function sendSmtp(s: SmtpSettings, m: SmtpMail): Promise<void> {
 	let c = new Conn(socket);
 	try {
 		await c.reply(220, "greeting");
-		await c.send("EHLO bima-pk-cms");
+		await c.send("EHLO bima-cms");
 		let caps = await c.reply(250, "EHLO");
 		if (!implicitTls) {
 			if (!/STARTTLS/i.test(caps)) throw new Error("[smtp] server does not offer STARTTLS - refusing to send credentials in clear");
@@ -130,7 +130,7 @@ export async function sendSmtp(s: SmtpSettings, m: SmtpMail): Promise<void> {
 			await c.reply(220, "STARTTLS");
 			socket = c.release().startTls();
 			c = new Conn(socket);
-			await c.send("EHLO bima-pk-cms");
+			await c.send("EHLO bima-cms");
 			caps = await c.reply(250, "EHLO after TLS");
 		}
 		await c.send("AUTH LOGIN");
