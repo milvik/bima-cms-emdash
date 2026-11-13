@@ -34,10 +34,9 @@ export const REGIONS: Record<string, Region> = {
 			ur: "BIMA پاکستان، Milvik AB اور اس کے مقامی شراکت داروں کے زیر انتظام ہے۔",
 		},
 	},
-	// With no market listed, the region serves the admin and the hub page only: every document URL is a 404.
 	af: {
 		name: "BIMA Africa",
-		markets: {},
+		markets: { gh: "GHANA_BTC" },
 		locales: ["en"],
 		operated: { en: "BIMA in Africa is operated by Milvik AB and its local partners." },
 	},
