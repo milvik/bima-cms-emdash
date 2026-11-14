@@ -20,6 +20,8 @@ const alternate = locale === "ur"
 	? { href: `/${market}/${path}`, lang: "en" as const }
 	: { href: `/ur/${market}/${path}`, lang: "ur" as const };
 const isConsentDocument = consent ?? DOCUMENTS[doc]?.type !== "ABOUT_US";
+// The app's in-app browser has no print support, so window.print() would do nothing there.
+const inApp = Astro.url.searchParams.get("app") === "1";
 const { html, toc } = renderBody(data.body);
 const showToc = toc.length >= 3;
 const effective = data.effective_from
@@ -58,12 +60,14 @@ const t = locale === "ur"
 						{effective && <span>{t.effective} {effective}</span>}
 					</p>
 				)}
-				<button class="print" type="button" data-print>
-					<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M5.5 7.5V3h9v4.5" /><rect x="2.5" y="7.5" width="15" height="7" rx="1.5" /><path d="M5.5 12h9v5h-9z" />
-					</svg>
-					{t.print}
-				</button>
+				{!inApp && (
+					<button class="print" type="button" data-print>
+						<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5.5 7.5V3h9v4.5" /><rect x="2.5" y="7.5" width="15" height="7" rx="1.5" /><path d="M5.5 12h9v5h-9z" />
+						</svg>
+						{t.print}
+					</button>
+				)}
 			</div>
 			{isDraft(data.notice_version) && (
 				<p class="notice notice--draft" role="note">
