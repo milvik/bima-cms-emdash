@@ -11,9 +11,11 @@ interface Props {
 	path?: string;
 	/** Whether this is a consent document, which shows its version and effective date. */
 	consent?: boolean;
+	/** A date to show under the title on a non-consent page (a news article's date). */
+	date?: string;
 }
 
-const { locale, doc, page, path = doc, consent } = Astro.props;
+const { locale, doc, page, path = doc, consent, date } = Astro.props;
 const data = page.entry.data;
 const market = Astro.params.market;
 const alternate = locale === "ur"
@@ -22,10 +24,10 @@ const alternate = locale === "ur"
 const isConsentDocument = consent ?? DOCUMENTS[doc]?.type !== "ABOUT_US";
 // The app's in-app browser has no print support, so window.print() would do nothing there.
 const inApp = Astro.url.searchParams.get("app") === "1";
-const effective = data.effective_from
-	? new Intl.DateTimeFormat(locale === "ur" ? "ur-PK" : "en-GB", { dateStyle: "long", timeZone: "UTC" })
-		.format(new Date(data.effective_from))
-	: null;
+const formatDate = (value: string) =>
+	new Intl.DateTimeFormat(locale === "ur" ? "ur-PK" : "en-GB", { dateStyle: "long", timeZone: "UTC" }).format(new Date(value));
+const effective = data.effective_from ? formatDate(data.effective_from) : null;
+const shownDate = !isConsentDocument && date ? formatDate(date) : null;
 const t = locale === "ur"
 	? {
 		draftTitle: "مسودہ — حتمی نہیں۔",
@@ -73,6 +75,7 @@ const showToc = toc.length >= 3;
 						{effective && <span>{t.effective} {effective}</span>}
 					</p>
 				)}
+				{shownDate && <p><span><time datetime={date}>{shownDate}</time></span></p>}
 				{!inApp && (
 					<button class="print" type="button" data-print>
 						<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">

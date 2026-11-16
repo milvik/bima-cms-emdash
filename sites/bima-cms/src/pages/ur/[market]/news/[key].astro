@@ -1,0 +1,11 @@
+---
+import LegalDocument from "../../../../components/LegalDocument.astro";
+import { findNewsPage } from "../../../../lib/news";
+
+const { market = "", key = "" } = Astro.params;
+const page = await findNewsPage(market, key, "ur");
+if (!page) return Astro.rewrite("/404");
+if (Astro.cache?.enabled) for (const hint of page.cacheHints) Astro.cache.set(hint as any);
+---
+
+<LegalDocument locale="ur" doc="news" path={`news/${key}`} consent={false} date={page.entry.data.news_date} page={page} />
