@@ -1,7 +1,7 @@
 ---
 import Legal from "../layouts/Legal.astro";
 import { DOCUMENTS, isDraft, type LegalPage, type Locale } from "../lib/legal";
-import { renderBody } from "../lib/portable";
+import { esc, renderBody, slug, type TocItem } from "../lib/portable";
 
 interface Props {
 	locale: Locale;
@@ -22,8 +22,6 @@ const alternate = locale === "ur"
 const isConsentDocument = consent ?? DOCUMENTS[doc]?.type !== "ABOUT_US";
 // The app's in-app browser has no print support, so window.print() would do nothing there.
 const inApp = Astro.url.searchParams.get("app") === "1";
-const { html, toc } = renderBody(data.body);
-const showToc = toc.length >= 3;
 const effective = data.effective_from
 	? new Intl.DateTimeFormat(locale === "ur" ? "ur-PK" : "en-GB", { dateStyle: "long", timeZone: "UTC" })
 		.format(new Date(data.effective_from))
@@ -47,6 +45,21 @@ const t = locale === "ur"
 		contents: "On this page",
 		print: "Print or save as PDF",
 	};
+// Heading ids are shared across the page, so a bundle's documents can't collide on e.g. "exclusions".
+const used = new Set<string>();
+const own = renderBody(data.body, used);
+let html = own.html;
+const toc: TocItem[] = [...own.toc];
+for (const [i, section] of (page.sections ?? []).entries()) {
+	const title = String(section.entry.data?.title ?? section.key);
+	const id = slug(title, used, 1000 + i);
+	const body = renderBody(section.entry.data?.body, used);
+	toc.push({ id, text: title }, ...body.toc);
+	const note = section.fellBack && !page.fellBack && locale === "ur" ? `<p class="part-note" lang="ur" dir="rtl">${esc(t.fallback)}</p>` : "";
+	html += `<section class="part" lang="${section.locale}" dir="${section.locale === "ur" ? "rtl" : "ltr"}">`
+		+ `<h2 id="${id}" class="part-title"><a class="anchor" href="#${id}">${esc(title)}</a></h2>${note}${body.html}</section>`;
+}
+const showToc = toc.length >= 3;
 ---
 
 <Legal title={data.title} lang={locale} current={doc} alternate={alternate}>
@@ -267,6 +280,9 @@ const t = locale === "ur"
 		line-height: 1.65;
 	}
 	.prose :global(blockquote p) { margin: 0; }
+	.prose :global(.part) { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--navy); }
+	.prose :global(.part-title) { margin-top: 0; font-size: 1.5em; }
+	.prose :global(.part-note) { padding: 0.75rem 1rem; border-radius: 0.75rem; background: var(--mist); font-size: 0.9375rem; }
 	.prose :global(.table-scroll) { overflow-x: auto; margin: 0 0 1.5em; border: 1px solid var(--rule); border-radius: 0.875rem; }
 	.prose :global(table) { width: 100%; border-collapse: collapse; font-size: 0.9375rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
 	.prose :global(th), .prose :global(td) { padding: 0.625rem 0.875rem; text-align: start; vertical-align: top; border-bottom: 1px solid var(--rule); }

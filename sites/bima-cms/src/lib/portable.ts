@@ -14,10 +14,10 @@ export interface TocItem {
 }
 
 const ESCAPES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
+export const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
 const SAFE_HREF = /^(https?:|mailto:|tel:|\/|#)/i;
 
-function slug(text: string, used: Set<string>, index: number): string {
+export function slug(text: string, used: Set<string>, index: number): string {
 	const base =
 		text
 			.toLowerCase()
@@ -91,9 +91,9 @@ function table(block: any): string {
 	return out + "</table></div>";
 }
 
-export function renderBody(blocks: unknown): { html: string; toc: TocItem[] } {
+/** Pass `used` to keep heading ids unique across several bodies rendered on one page. */
+export function renderBody(blocks: unknown, used: Set<string> = new Set<string>()): { html: string; toc: TocItem[] } {
 	if (!Array.isArray(blocks)) return { html: "", toc: [] };
-	const used = new Set<string>();
 	const toc: TocItem[] = [];
 	const lists: { tag: "ul" | "ol"; level: number }[] = [];
 	let html = "";

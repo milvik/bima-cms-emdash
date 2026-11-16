@@ -20,6 +20,8 @@ export interface LegalPage {
 	locale: Locale;
 	fellBack: boolean;
 	cacheHints: unknown[];
+	/** Documents this one includes, in order (a bundle's terms). Absent on every other page. */
+	sections?: { key: string; entry: any; locale: Locale; fellBack: boolean }[];
 }
 
 async function latest(type: string, partner: string, locale: Locale) {
